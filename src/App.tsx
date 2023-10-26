@@ -1,7 +1,7 @@
 import AddTaskForm from "./TaskForm/AddTaskForm";
 import Task from "./Task/Task.tsx";
 import './App.css';
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface Task {
     text: string;
@@ -9,7 +9,7 @@ interface Task {
 }
 
 const App = () => {
-    const [tasks] = useState<Task[]>([
+    const [tasks, setTasks] = useState<Task[]>([
         {text: 'Do home work', id: 1},
         {text: 'Cook dinner', id: 2},
         {text: 'Do house cleaning', id: 3},
@@ -17,11 +17,33 @@ const App = () => {
         {text: 'Cutting firewood', id: 5},
     ]);
 
-    const taskList = tasks.map((task => <Task text={task.text} id={task.id} />));
+    const deleteTask = (id:number) => {
+        const removeTaskFromList = tasks.filter(task => task.id !== id);
+        setTasks(removeTaskFromList);
+    }
+
+    const taskList = tasks.map((task => <Task text={task.text} id={task.id} onDelete={deleteTask} />));
+
+    const [currentTask, setCurrentTask] = useState('');
+
+    const inputChange = (event:React.ChangeEvent<HTMLInputElement>) => {
+        setCurrentTask(event.target.value);
+    };
+
+    const addTask = () => {
+        if (currentTask !== "") {
+            const newTask = { text: currentTask, id: tasks.length + 1 };
+            setTasks( [...tasks, newTask]);
+            setCurrentTask("");
+        }
+    };
 
     return (
         <div id="root">
-            <AddTaskForm />
+            <AddTaskForm
+                onInputChange={inputChange}
+                currentTask={currentTask}
+                addTask={addTask}/>
             {taskList}
         </div>
     );
